@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { CreditCard, CheckCircle, Clock, XCircle, ShoppingBag, Zap } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, ShoppingBag, Zap } from 'lucide-react';
 
 interface Transaction {
   id: string;
@@ -24,7 +24,7 @@ const TransactionManager = () => {
 
   const fetchTransactions = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('transactions')
       .select(`
         *,

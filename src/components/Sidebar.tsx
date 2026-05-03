@@ -31,7 +31,7 @@ const Sidebar = () => {
         return;
     }
 
-    const { data, error } = await supabase
+    const { data } = await supabase
         .from('playlists')
         .insert([
             { name: 'My Playlist #1', user_id: user.id }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Music, Play, Heart } from 'lucide-react';
+import { Music, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Playlist {
@@ -19,7 +19,7 @@ const Library = () => {
     if (!user) return;
 
     const fetchLibrary = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('playlists')
         .select('*')
         .eq('user_id', user.id);

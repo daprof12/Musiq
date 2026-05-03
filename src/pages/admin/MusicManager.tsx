@@ -33,7 +33,7 @@ const MusicManager = () => {
 
   const fetchTracks = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('tracks')
       .select('*')
       .order('created_at', { ascending: false });
@@ -47,7 +47,7 @@ const MusicManager = () => {
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `${fileName}`;
 
-    const { error: uploadError, data } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from(bucket)
       .upload(filePath, file);
 

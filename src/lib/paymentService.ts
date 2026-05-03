@@ -35,7 +35,7 @@ export const createCheckoutSession = async (provider: PaymentProvider, options: 
 
 export const verifyPayment = async (sessionId: string) => {
   // This would be called on the "success" redirect page
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('transactions')
     .select('*')
     .eq('provider_id', sessionId)

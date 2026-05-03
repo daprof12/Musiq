@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Heart, Play, Music, Clock } from 'lucide-react';
+import { Heart, Clock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { usePlayerStore } from '../store/usePlayerStore';
@@ -23,7 +23,7 @@ const LikedSongs = () => {
     if (!user) return;
 
     const fetchLikedSongs = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('likes')
         .select(`
           track_id,

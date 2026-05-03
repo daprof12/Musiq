@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { User as UserIcon, Shield, ShieldAlert, Plus, X, Mail, Lock, UserPlus, Edit2, Trash2, Loader2 } from 'lucide-react';
+import { User as UserIcon, Shield, ShieldAlert, X, UserPlus, Edit2, Trash2 } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -55,7 +55,7 @@ const UserManager = () => {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('profiles')
       .select('*')
       .order('created_at', { ascending: false });

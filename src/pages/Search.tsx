@@ -26,7 +26,7 @@ const Search = () => {
       }
 
       setLoading(true);
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('tracks')
         .select('*')
         .or(`title.ilike.%${query}%,artist_name.ilike.%${query}%,album_name.ilike.%${query}%`)

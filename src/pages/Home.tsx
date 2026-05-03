@@ -23,7 +23,7 @@ const Home = () => {
 
   useEffect(() => {
     const fetchTracks = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('tracks')
         .select('*')
         .order('created_at', { ascending: false });

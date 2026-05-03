@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Music, ShoppingBag, CreditCard, Users, Plus } from 'lucide-react';
+import { LayoutDashboard, Music, ShoppingBag, CreditCard, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import MusicManager from './admin/MusicManager';
 import StoreManager from './admin/StoreManager';

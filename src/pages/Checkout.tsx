@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useCartStore } from '../store/useCartStore';
 import { CreditCard, ShoppingBag, ShieldCheck, ArrowRight, Loader2, Globe, Zap, Star, Crown } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -6,7 +6,7 @@ import { createCheckoutSession } from '../lib/paymentService';
 import type { PaymentProvider } from '../lib/paymentService';
 
 const Checkout = () => {
-  const { items, total, clearCart } = useCartStore();
+  const { items, total } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [provider, setProvider] = useState<PaymentProvider>('stripe');
   const navigate = useNavigate();

@@ -20,7 +20,7 @@ const Store = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
