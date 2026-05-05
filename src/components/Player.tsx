@@ -1,22 +1,57 @@
 import { useEffect, useRef, useState } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Volume2, Mic2, ListMusic, MonitorSpeaker } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
+import { useAuth } from '../context/AuthContext';
+import { trackPlayStart, trackPlayEnd, getDeviceId, MUSIQ_CAMPAIGN_ID } from '../lib/nrtTracker';
 
 const Player = () => {
   const { currentTrack, isPlaying, togglePlay, volume, setVolume } = usePlayerStore();
+  const { user } = useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
 
+  // ── NRT Tracking ─────────────────────────────────────────────────────────────
+  // Track elapsed seconds since the current playback session started
+  const playStartTimeRef = useRef<number | null>(null);
+
+  /** Called whenever we begin streaming — opens an NRT session */
+  const startTracking = () => {
+    if (!user) return; // only track authenticated users
+    playStartTimeRef.current = Date.now();
+    trackPlayStart(user.id, getDeviceId(), MUSIQ_CAMPAIGN_ID);
+  };
+
+  /** Called whenever playback pauses/stops/changes — closes the NRT session */
+  const endTracking = () => {
+    if (playStartTimeRef.current === null) return;
+    const elapsedSecs = (Date.now() - playStartTimeRef.current) / 1000;
+    playStartTimeRef.current = null;
+    trackPlayEnd(elapsedSecs);
+  };
+
+  // ── Playback control ──────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
-        audioRef.current.play().catch(err => console.error("Playback error:", err));
+        audioRef.current.play().catch(err => console.error('Playback error:', err));
+        startTracking();
       } else {
         audioRef.current.pause();
+        endTracking();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, currentTrack]);
+
+  // End tracking when track changes (before the new one starts)
+  useEffect(() => {
+    return () => {
+      endTracking();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTrack?.id]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -38,8 +73,13 @@ const Player = () => {
     }
   };
 
+  /** When the audio element fires 'ended', close the NRT session for the full track */
+  const handleEnded = () => {
+    endTracking();
+  };
+
   const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00";
+    if (isNaN(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -47,20 +87,21 @@ const Player = () => {
 
   return (
     <div className="player-bar">
-      <audio 
-        ref={audioRef} 
-        src={currentTrack?.audio_url} 
+      <audio
+        ref={audioRef}
+        src={currentTrack?.audio_url}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
+        onEnded={handleEnded}
       />
-      
+
       <div className="current-track" style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '30%' }}>
-        <div style={{ 
-          width: '56px', 
-          height: '56px', 
-          background: currentTrack ? `url(${currentTrack.cover_url})` : '#282828', 
+        <div style={{
+          width: '56px',
+          height: '56px',
+          background: currentTrack ? `url(${currentTrack.cover_url})` : '#282828',
           backgroundSize: 'cover',
-          borderRadius: '4px' 
+          borderRadius: '4px'
         }}></div>
         <div>
           <div style={{ fontSize: '14px', fontWeight: '500' }}>{currentTrack?.title || 'No track selected'}</div>
@@ -72,17 +113,17 @@ const Player = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', color: '#a7a7a7' }}>
           <Shuffle size={16} />
           <SkipBack size={20} fill="currentColor" />
-          <div 
+          <div
             onClick={togglePlay}
-            style={{ 
-              background: 'white', 
-              color: 'black', 
-              borderRadius: '50%', 
-              width: '32px', 
-              height: '32px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
+            style={{
+              background: 'white',
+              color: 'black',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               cursor: 'pointer',
               transition: 'transform 0.1s'
             }}
@@ -96,7 +137,7 @@ const Player = () => {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', maxWidth: '600px' }}>
           <span style={{ fontSize: '11px', color: '#a7a7a7' }}>{formatTime(audioRef.current?.currentTime || 0)}</span>
-          <div 
+          <div
             style={{ flex: 1, height: '4px', background: '#4d4d4d', borderRadius: '2px', position: 'relative', cursor: 'pointer' }}
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -107,7 +148,7 @@ const Player = () => {
               }
             }}
           >
-             <div style={{ width: `${progress}%`, height: '100%', background: 'white', borderRadius: '2px' }}></div>
+            <div style={{ width: `${progress}%`, height: '100%', background: 'white', borderRadius: '2px' }}></div>
           </div>
           <span style={{ fontSize: '11px', color: '#a7a7a7' }}>{formatTime(duration)}</span>
         </div>
@@ -119,11 +160,11 @@ const Player = () => {
         <MonitorSpeaker size={16} />
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100px' }}>
           <Volume2 size={16} />
-          <input 
-            type="range" 
-            min="0" 
-            max="1" 
-            step="0.01" 
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
             value={volume}
             onChange={(e) => setVolume(parseFloat(e.target.value))}
             style={{ flex: 1, height: '4px', appearance: 'none', background: '#4d4d4d', borderRadius: '2px', cursor: 'pointer' }}

@@ -12,6 +12,9 @@
   --glass-bg: rgba(10, 10, 10, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --sidebar-width: 240px;
+  --player-height: 90px;
+  --mobile-nav-height: 60px;
 }
 
 * {
@@ -38,31 +41,23 @@ body {
 }
 
 /* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* ── Desktop Layout ────────────────────────────────────────────────────────── */
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Layout Utilities */
 .app-container {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  grid-template-rows: 1fr 90px;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: 1fr var(--player-height);
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
 }
+
+/* Sidebar -------------------------------------------------------------------- */
 
 .sidebar {
   background-color: var(--bg-sidebar);
@@ -70,14 +65,33 @@ body {
   display: flex;
   flex-direction: column;
   gap: 32px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Smooth slide transition */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 200;
+  position: relative;
 }
+
+/* Sidebar overlay (mobile only — rendered by Sidebar component) */
+.sidebar-overlay {
+  display: none;
+}
+
+/* Main content --------------------------------------------------------------- */
 
 .main-content {
   background: linear-gradient(to bottom, #1a1a1a, var(--bg-main));
   padding: 24px;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
+  transition: padding 0.3s;
 }
+
+/* Player bar ----------------------------------------------------------------- */
 
 .player-bar {
   grid-column: 1 / -1;
@@ -87,14 +101,38 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  z-index: 100;
 }
 
-/* Typography */
+/* Mobile hamburger toggle ---------------------------------------------------- */
+
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.sidebar-toggle:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* ── Typography ────────────────────────────────────────────────────────────── */
+
 h1 { font-size: 32px; font-weight: 700; margin-bottom: 24px; }
 h2 { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
-p { color: var(--text-secondary); line-height: 1.6; }
+h3 { font-size: 18px; font-weight: 700; }
+p  { color: var(--text-secondary); line-height: 1.6; }
 
-/* Buttons */
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+
 .btn-primary {
   background-color: var(--accent-primary);
   color: #000000;
@@ -104,14 +142,20 @@ p { color: var(--text-secondary); line-height: 1.6; }
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition-smooth);
+  font-family: inherit;
 }
-
 .btn-primary:hover {
   transform: scale(1.04);
   background-color: var(--accent-hover);
 }
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 
-/* Form inputs */
+/* ── Form inputs ────────────────────────────────────────────────────────────── */
+
 input {
   background: var(--bg-card);
   border: 1px solid transparent;
@@ -120,10 +164,139 @@ input {
   color: white;
   width: 100%;
   transition: var(--transition-smooth);
+  font-family: inherit;
 }
-
 input:focus {
   outline: none;
   border-color: var(--accent-primary);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.08);
+}
+
+/* ── Mobile Bottom Navigation ────────────────────────────────────────────────── */
+
+.mobile-nav {
+  display: none;
+}
+
+/* ── RESPONSIVE BREAKPOINTS ─────────────────────────────────────────────────── */
+
+/* Tablet — collapse sidebar */
+@media (max-width: 768px) {
+  .app-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr var(--player-height) var(--mobile-nav-height);
+  }
+
+  /* Sidebar becomes a fixed drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100%;
+    transform: translateX(-100%);
+    z-index: 400;
+    padding-top: 64px; /* room for the close button */
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.8);
+  }
+
+  /* Overlay behind drawer */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .sidebar-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Hamburger button shown in main content header */
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  /* Player takes full width */
+  .player-bar {
+    grid-column: 1;
+  }
+
+  /* Main content padding */
+  .main-content {
+    padding: 16px;
+  }
+
+  /* Hide desktop player track info on tiny screens */
+  .current-track .track-meta {
+    display: none;
+  }
+
+  /* Mobile bottom nav */
+  .mobile-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: #000;
+    border-top: 1px solid var(--glass-border);
+    padding: 0 8px;
+    grid-column: 1;
+    z-index: 100;
+  }
+
+  /* Typography scale down */
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+}
+
+/* Mobile — extra small */
+@media (max-width: 480px) {
+  .main-content {
+    padding: 12px;
+  }
+
+  .player-bar {
+    padding: 0 8px;
+  }
+
+  /* Shrink player track art */
+  .current-track > div:first-child {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  h1 { font-size: 20px; margin-bottom: 16px; }
+
+  /* Full-width buttons on mobile */
+  .btn-primary {
+    padding: 12px 20px;
+  }
+}
+
+/* ── Utility ─────────────────────────────────────────────────────────────────── */
+
+/* Hide on mobile */
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+}
+
+/* Hide on desktop */
+@media (min-width: 769px) {
+  .hide-desktop { display: none !important; }
+}
+
+/* Spin animation (used by Loader2) */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
