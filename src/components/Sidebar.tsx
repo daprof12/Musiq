@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Home as HomeIcon, Search, Library as LibraryIcon, PlusSquare, Heart, ShoppingBag, Settings, LogOut, X, Menu } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useToastStore } from '../store/useToastStore';
+import CreatePlaylistModal from './CreatePlaylistModal';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -15,6 +17,8 @@ const Sidebar = ({ isOpen, onClose, onToggle }: SidebarProps) => {
   const navigate = useNavigate();
   const { user, isAdmin, signOut } = useAuth();
   const { addToast } = useToastStore();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   const menuItems = [
     { icon: HomeIcon,     label: 'Home',         path: '/' },
@@ -34,38 +38,34 @@ const Sidebar = ({ isOpen, onClose, onToggle }: SidebarProps) => {
     navigate('/login');
   };
 
-  const handleCreatePlaylist = async () => {
-    if (!user) { navigate('/login'); onClose(); return; }
-    
-    const name = window.prompt('Enter playlist name:', 'My New Playlist');
-    if (!name) return;
-
+  const handleCreatePlaylist = async (name: string) => {
     try {
+      setCreating(true);
       const { data, error } = await supabase
         .from('playlists')
-        .insert([{ name, user_id: user.id }])
+        .insert([{ name, user_id: user!.id }])
         .select()
         .single();
       
-      if (error) {
-        console.error('Error creating playlist:', error);
-        addToast('Failed to create playlist', 'error');
-        return;
-      }
+      if (error) throw error;
 
       if (data) {
         addToast(`Created playlist "${name}"`);
-        navigate('/library');
+        setModalOpen(false);
+        navigate(`/playlist/${data.id}`);
         onClose();
-        // Force a refresh if already on library
-        if (location.pathname === '/library') {
-          window.location.reload();
-        }
       }
     } catch (err) {
-      console.error('Unexpected error:', err);
-      alert('An unexpected error occurred.');
+      console.error('Error creating playlist:', err);
+      addToast('Failed to create playlist', 'error');
+    } finally {
+      setCreating(false);
     }
+  };
+
+  const openCreateModal = () => {
+    if (!user) { navigate('/login'); onClose(); return; }
+    setModalOpen(true);
   };
 
   const handleNavClick = () => onClose();
@@ -147,7 +147,7 @@ const Sidebar = ({ isOpen, onClose, onToggle }: SidebarProps) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {actionItems.map((item) =>
               item.action === 'create' ? (
-                <button key={item.label} onClick={handleCreatePlaylist} style={buttonStyle}>
+                <button key={item.label} onClick={openCreateModal} style={buttonStyle}>
                   <item.icon size={24} />
                   {item.label}
                 </button>
@@ -195,6 +195,13 @@ const Sidebar = ({ isOpen, onClose, onToggle }: SidebarProps) => {
           )}
         </div>
       </aside>
+
+      <CreatePlaylistModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        onCreate={handleCreatePlaylist}
+        loading={creating}
+      />
     </>
   );
 };
