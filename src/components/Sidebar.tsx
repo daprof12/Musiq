@@ -2,6 +2,7 @@ import { Home as HomeIcon, Search, Library as LibraryIcon, PlusSquare, Heart, Sh
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useToastStore } from '../store/useToastStore';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ const Sidebar = ({ isOpen, onClose, onToggle }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAdmin, signOut } = useAuth();
+  const { addToast } = useToastStore();
 
   const menuItems = [
     { icon: HomeIcon,     label: 'Home',         path: '/' },
@@ -47,11 +49,12 @@ const Sidebar = ({ isOpen, onClose, onToggle }: SidebarProps) => {
       
       if (error) {
         console.error('Error creating playlist:', error);
-        alert('Failed to create playlist. Please try again.');
+        addToast('Failed to create playlist', 'error');
         return;
       }
 
       if (data) {
+        addToast(`Created playlist "${name}"`);
         navigate('/library');
         onClose();
         // Force a refresh if already on library

@@ -3,6 +3,7 @@ import { ShoppingCart, Tag } from 'lucide-react';
 import { useCartStore } from '../store/useCartStore';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useToastStore } from '../store/useToastStore';
 
 interface Product {
   id: string;
@@ -14,6 +15,7 @@ interface Product {
 
 const Store = () => {
   const { items, addItem } = useCartStore();
+  const { addToast } = useToastStore();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,13 +108,16 @@ const Store = () => {
                   <button 
                     className="btn-primary" 
                     style={{ padding: '8px 16px', fontSize: '14px', width: 'auto', minWidth: 'fit-content' }}
-                    onClick={() => addItem({
+                    onClick={() => {
+                      addItem({
                         id: product.id,
                         name: product.name,
                         price: product.price,
                         artist: 'Various Artists', // In a real app, join with profiles
                         image_url: product.image_url
-                    })}
+                      });
+                      addToast(`Added ${product.name} to cart`);
+                    }}
                   >
                     Add to Cart
                   </button>

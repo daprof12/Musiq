@@ -7,6 +7,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { createCheckoutSession } from '../lib/paymentService';
+import { useToastStore } from '../store/useToastStore';
 
 // ── Mobile detection ──────────────────────────────────────────────────────────
 const isMobileDevice = () =>
@@ -128,6 +129,7 @@ const Checkout = () => {
   const [error, setError] = useState<string | null>(null);
   const [sessionData, setSessionData] = useState<{ url: string; sessionId: string } | null>(null);
   const { user } = useAuth();
+  const { addToast } = useToastStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -149,6 +151,7 @@ const Checkout = () => {
     }
 
     setLoading(true);
+    addToast('Preparing secure checkout...', 'info');
     setError(null);
 
     try {
@@ -179,9 +182,10 @@ const Checkout = () => {
         setSessionData({ url: response.url, sessionId: response.sessionId });
       }
     } catch (err) {
+      console.error('Checkout error:', err);
+      addToast(err instanceof Error ? err.message : 'Failed to start checkout', 'error');
       const msg = err instanceof Error ? err.message : 'Payment initialization failed. Please try again.';
       setError(msg);
-      console.error('[Checkout] Payment failed:', err);
     } finally {
       setLoading(false);
     }

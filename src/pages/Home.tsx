@@ -4,6 +4,7 @@ import { usePlayerStore } from '../store/usePlayerStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useToastStore } from '../store/useToastStore';
 
 interface Track {
   id: string;
@@ -17,6 +18,7 @@ interface Track {
 const Home = () => {
   const { setTrack } = usePlayerStore();
   const { user, profile } = useAuth();
+  const { addToast } = useToastStore();
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<{id: string, name: string}[]>([]);
@@ -52,10 +54,10 @@ const Home = () => {
       .insert([{ playlist_id: playlistId, track_id: trackId }]);
     
     if (error) {
-      alert('Failed to add track to playlist. (Table may not exist yet)');
+      addToast('Failed to add track to playlist', 'error');
       console.error(error);
     } else {
-      alert('Added to playlist!');
+      addToast('Added to playlist!');
     }
     setActiveMenu(null);
   };

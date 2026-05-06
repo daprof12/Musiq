@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Home as HomeIcon, Search, Library, ShoppingBag, Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Player from './components/Player';
+import Toast from './components/Toast';
 import Home from './pages/Home';
 import Store from './pages/Store';
 import Subscription from './pages/Subscription';
@@ -96,6 +97,7 @@ function App() {
       </main>
 
       <Player />
+      <Toast />
 
       {/* Mobile bottom navigation */}
       <nav className="mobile-nav" aria-label="Mobile navigation">

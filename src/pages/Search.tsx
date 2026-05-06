@@ -3,6 +3,7 @@ import { Search as SearchIcon, Play, Music, Plus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { usePlayerStore } from '../store/usePlayerStore';
+import { useToastStore } from '../store/useToastStore';
 
 interface Track {
   id: string;
@@ -20,6 +21,7 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { setTrack } = usePlayerStore();
+  const { addToast } = useToastStore();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -35,9 +37,9 @@ const Search = () => {
       .insert([{ playlist_id: playlistId, track_id: trackId }]);
     
     if (error) {
-      alert('Failed to add track to playlist.');
+      addToast('Failed to add track to playlist', 'error');
     } else {
-      alert('Added to playlist!');
+      addToast('Added to playlist!');
     }
     setActiveMenu(null);
   };
