@@ -95,17 +95,18 @@ const Player = () => {
         onEnded={handleEnded}
       />
 
-      <div className="current-track" style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '30%' }}>
+      <div className="current-track" style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: '0 1 30%' }}>
         <div style={{
           width: '56px',
           height: '56px',
           background: currentTrack ? `url(${currentTrack.cover_url})` : '#282828',
           backgroundSize: 'cover',
-          borderRadius: '4px'
+          borderRadius: '4px',
+          flexShrink: 0
         }}></div>
-        <div>
-          <div style={{ fontSize: '14px', fontWeight: '500' }}>{currentTrack?.title || 'No track selected'}</div>
-          <div style={{ fontSize: '11px', color: '#a7a7a7' }}>{currentTrack?.artist || 'Select a song to play'}</div>
+        <div className="track-meta" style={{ minWidth: 0 }}>
+          <div style={{ fontSize: '14px', fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack?.title || 'No track selected'}</div>
+          <div style={{ fontSize: '11px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack?.artist || 'Select a song to play'}</div>
         </div>
       </div>
 
@@ -154,7 +155,7 @@ const Player = () => {
         </div>
       </div>
 
-      <div className="volume-controls" style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '30%', justifyContent: 'flex-end', color: '#a7a7a7' }}>
+      <div className="volume-controls hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: '0 1 30%', justifyContent: 'flex-end', color: '#a7a7a7' }}>
         <Mic2 size={16} />
         <ListMusic size={16} />
         <MonitorSpeaker size={16} />

@@ -44,26 +44,30 @@ function App() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: '16px',
+            padding: '8px 4px',
+            marginBottom: '24px',
+            borderBottom: '1px solid rgba(255,255,255,0.05)'
           }}
         >
           <button
             onClick={() => setSidebarOpen(true)}
             style={{
-              background: 'none',
+              background: 'rgba(255,255,255,0.05)',
               border: 'none',
               color: 'white',
               cursor: 'pointer',
-              padding: '8px',
-              borderRadius: '8px',
+              padding: '10px',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
             aria-label="Open menu"
           >
-            <Menu size={24} />
+            <Menu size={22} />
           </button>
-          <span style={{ fontWeight: '700', fontSize: '18px' }}>Musiq</span>
-          {/* Spacer to center the title */}
-          <div style={{ width: '40px' }} />
+          <span style={{ fontWeight: '800', fontSize: '20px', letterSpacing: '-0.5px' }}>Musiq</span>
+          <div style={{ width: '42px' }} />
         </div>
 
         <Routes>

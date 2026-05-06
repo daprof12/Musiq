@@ -223,7 +223,7 @@ const Checkout = () => {
         <div className="checkout-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0,1fr)',
-          gap: '24px',
+          gap: '32px',
         }}>
           {/* ── Left column ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -256,18 +256,18 @@ const Checkout = () => {
                   </div>
                 )}
                 {items.map((item) => (
-                  <div key={item.id} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <div key={item.id} style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px' }}>
                     <div style={{
                       width: '52px', height: '52px', flexShrink: 0,
                       background: `url(${item.image_url}) center/cover`, borderRadius: '8px',
                     }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                       <div style={{ fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {item.name}
                       </div>
                       <div style={{ fontSize: '13px', color: '#a7a7a7' }}>Qty: {item.quantity}</div>
                     </div>
-                    <div style={{ fontWeight: '600', flexShrink: 0 }}>
+                    <div style={{ fontWeight: '700', flexShrink: 0, marginLeft: '8px' }}>
                       ${(item.price * item.quantity).toFixed(2)}
                     </div>
                   </div>

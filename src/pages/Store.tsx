@@ -59,11 +59,11 @@ const Store = () => {
         </button>
       </header>
 
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
-        gap: '32px' 
-      }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', 
+          gap: '32px' 
+        }}>
         {loading ? (
            Array(4).fill(0).map((_, i) => (
              <div key={i} style={{ height: '320px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}></div>

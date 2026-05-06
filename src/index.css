@@ -102,6 +102,7 @@ body {
   align-items: center;
   justify-content: space-between;
   z-index: 100;
+  overflow: hidden;
 }
 
 /* Mobile hamburger toggle ---------------------------------------------------- */
@@ -239,6 +240,15 @@ input:focus {
     display: none;
   }
 
+  /* Ensure player controls stay centered */
+  .player-bar .controls {
+    margin-right: 0;
+  }
+
+  /* Shrink player bar height slightly on small screens if needed */
+  :root {
+    --player-height: 80px;
+  }
   /* Mobile bottom nav */
   .mobile-nav {
     display: flex;
@@ -277,6 +287,10 @@ input:focus {
   /* Full-width buttons on mobile */
   .btn-primary {
     padding: 12px 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
