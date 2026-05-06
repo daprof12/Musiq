@@ -75,14 +75,18 @@ const Library = () => {
 
         {/* Playlists */}
         {playlists.map((playlist) => (
-            <div 
+            <Link 
                 key={playlist.id}
+                to={`/playlist/${playlist.id}`}
                 className="glass"
                 style={{ 
                     padding: '16px', 
                     borderRadius: '8px', 
                     transition: 'background 0.3s',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    color: 'white',
+                    display: 'block'
                 }}
             >
                 <div style={{ 
@@ -100,7 +104,7 @@ const Library = () => {
                 </div>
                 <div style={{ fontWeight: '700', marginBottom: '8px' }}>{playlist.name}</div>
                 <div style={{ fontSize: '14px', color: '#a7a7a7' }}>Playlist • {user.email?.split('@')[0]}</div>
-            </div>
+            </Link>
         ))}
 
         {playlists.length === 0 && !loading && (

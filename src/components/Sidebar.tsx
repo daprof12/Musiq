@@ -34,12 +34,35 @@ const Sidebar = ({ isOpen, onClose, onToggle }: SidebarProps) => {
 
   const handleCreatePlaylist = async () => {
     if (!user) { navigate('/login'); onClose(); return; }
-    const { data } = await supabase
-      .from('playlists')
-      .insert([{ name: 'My Playlist #1', user_id: user.id }])
-      .select()
-      .single();
-    if (data) { navigate('/library'); onClose(); }
+    
+    const name = window.prompt('Enter playlist name:', 'My New Playlist');
+    if (!name) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('playlists')
+        .insert([{ name, user_id: user.id }])
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error creating playlist:', error);
+        alert('Failed to create playlist. Please try again.');
+        return;
+      }
+
+      if (data) {
+        navigate('/library');
+        onClose();
+        // Force a refresh if already on library
+        if (location.pathname === '/library') {
+          window.location.reload();
+        }
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      alert('An unexpected error occurred.');
+    }
   };
 
   const handleNavClick = () => onClose();

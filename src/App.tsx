@@ -13,6 +13,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import SearchPage from './pages/Search';
 import LibraryPage from './pages/Library';
 import LikedSongs from './pages/LikedSongs';
+import PlaylistView from './pages/PlaylistView';
 import { ProtectedRoute, AdminRoute } from './components/AuthRoutes';
 
 // Mobile bottom nav items
@@ -83,6 +84,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/library"       element={<LibraryPage />} />
             <Route path="/library/liked" element={<LikedSongs />} />
+            <Route path="/playlist/:id"  element={<PlaylistView />} />
             <Route path="/checkout"      element={<Checkout />} />
           </Route>
 

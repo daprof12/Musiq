@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Search as SearchIcon, Play, Music } from 'lucide-react';
+import { Search as SearchIcon, Play, Music, Plus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import { usePlayerStore } from '../store/usePlayerStore';
 
 interface Track {
@@ -15,8 +16,31 @@ interface Track {
 const Search = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Track[]>([]);
+  const [playlists, setPlaylists] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { setTrack } = usePlayerStore();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      supabase.from('playlists').select('id, name').eq('user_id', user.id)
+        .then(({ data }) => data && setPlaylists(data));
+    }
+  }, [user]);
+
+  const addToPlaylist = async (trackId: string, playlistId: string) => {
+    const { error } = await supabase
+      .from('playlist_tracks')
+      .insert([{ playlist_id: playlistId, track_id: trackId }]);
+    
+    if (error) {
+      alert('Failed to add track to playlist.');
+    } else {
+      alert('Added to playlist!');
+    }
+    setActiveMenu(null);
+  };
 
   useEffect(() => {
     const searchTracks = async () => {
@@ -110,8 +134,55 @@ const Search = () => {
                     <div style={{ fontWeight: '600' }}>{track.title}</div>
                     <div style={{ fontSize: '12px', color: '#a7a7a7' }}>{track.artist_name}</div>
                   </div>
-                  <div style={{ fontSize: '14px', color: '#a7a7a7' }}>{track.album_name}</div>
-                  <Play size={16} color="#1ed760" style={{ marginLeft: '24px' }} />
+                  <div style={{ fontSize: '14px', color: '#a7a7a7', marginRight: '24px' }}>{track.album_name}</div>
+                  
+                  {user && (
+                    <div style={{ position: 'relative', marginRight: '24px' }}>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveMenu(activeMenu === track.id ? null : track.id);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#a7a7a7', cursor: 'pointer', padding: '4px' }}
+                      >
+                        <Plus size={20} />
+                      </button>
+                      
+                      {activeMenu === track.id && (
+                        <div style={{ 
+                          position: 'absolute', 
+                          top: '100%', 
+                          right: 0, 
+                          background: '#282828', 
+                          borderRadius: '4px', 
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                          zIndex: 10,
+                          minWidth: '160px',
+                          padding: '4px 0'
+                        }}>
+                          {playlists.map(p => (
+                            <button 
+                              key={p.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToPlaylist(track.id, p.id);
+                              }}
+                              style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: 'none', border: 'none', color: 'white', fontSize: '14px', cursor: 'pointer' }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                              {p.name}
+                            </button>
+                          ))}
+                          {playlists.length === 0 && (
+                            <div style={{ padding: '8px 12px', fontSize: '12px', color: '#a7a7a7' }}>No playlists</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <Play size={16} color="#1ed760" />
                 </div>
               ))}
             </div>

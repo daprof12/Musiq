@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Play } from 'lucide-react';
+import { Play, Plus } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -19,21 +19,46 @@ const Home = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<Track[]>([]);
+  const [playlists, setPlaylists] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchTracks = async () => {
-      const { data } = await supabase
+    const fetchData = async () => {
+      const { data: trackData } = await supabase
         .from('tracks')
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (data) setTracks(data);
+      if (trackData) setTracks(trackData);
+
+      if (user) {
+        const { data: playlistData } = await supabase
+          .from('playlists')
+          .select('id, name')
+          .eq('user_id', user.id);
+        if (playlistData) setPlaylists(playlistData);
+      }
+
       setLoading(false);
     };
 
-    fetchTracks();
-  }, []);
+    fetchData();
+  }, [user]);
+
+  const addToPlaylist = async (trackId: string, playlistId: string) => {
+    const { error } = await supabase
+      .from('playlist_tracks')
+      .insert([{ playlist_id: playlistId, track_id: trackId }]);
+    
+    if (error) {
+      alert('Failed to add track to playlist. (Table may not exist yet)');
+      console.error(error);
+    } else {
+      alert('Added to playlist!');
+    }
+    setActiveMenu(null);
+  };
 
   return (
     <div>
@@ -119,8 +144,70 @@ const Home = () => {
                   marginBottom: '16px',
                   boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
                 }}></div>
-                <div style={{ fontWeight: '700', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</div>
-                <div style={{ fontSize: '14px', color: '#a7a7a7' }}>{item.artist_name}</div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: '700', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</div>
+                    <div style={{ fontSize: '14px', color: '#a7a7a7' }}>{item.artist_name}</div>
+                  </div>
+                  
+                  {user && (
+                    <div style={{ position: 'relative' }}>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveMenu(activeMenu === item.id ? null : item.id);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#a7a7a7', cursor: 'pointer', padding: '4px' }}
+                      >
+                        <Plus size={20} />
+                      </button>
+                      
+                      {activeMenu === item.id && (
+                        <div style={{ 
+                          position: 'absolute', 
+                          bottom: '100%', 
+                          right: 0, 
+                          background: '#282828', 
+                          borderRadius: '4px', 
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                          zIndex: 10,
+                          minWidth: '160px',
+                          padding: '4px 0'
+                        }}>
+                          <div style={{ padding: '8px 12px', fontSize: '12px', color: '#a7a7a7', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Add to playlist</div>
+                          {playlists.map(p => (
+                            <button 
+                              key={p.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToPlaylist(item.id, p.id);
+                              }}
+                              style={{ 
+                                display: 'block', 
+                                width: '100%', 
+                                padding: '8px 12px', 
+                                textAlign: 'left', 
+                                background: 'none', 
+                                border: 'none', 
+                                color: 'white', 
+                                fontSize: '14px', 
+                                cursor: 'pointer' 
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                              {p.name}
+                            </button>
+                          ))}
+                          {playlists.length === 0 && (
+                            <div style={{ padding: '8px 12px', fontSize: '12px', color: '#a7a7a7' }}>No playlists found</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
                 
                 <div className="play-button" style={{
                     position: 'absolute',
