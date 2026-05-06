@@ -52,7 +52,7 @@ const Store = () => {
         <button 
           className="btn-primary" 
           onClick={() => navigate('/checkout')}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', width: 'auto', minWidth: 'fit-content' }}
         >
             <ShoppingCart size={20} />
             Cart ({items.reduce((acc, item) => acc + item.quantity, 0)})
@@ -101,11 +101,11 @@ const Store = () => {
                 {product.description || 'Exclusive artist merchandise.'}
               </div>
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontWeight: '700', fontSize: '20px', color: '#1ed760' }}>${product.price.toFixed(2)}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ fontWeight: '700', fontSize: '20px', color: '#1ed760', whiteSpace: 'nowrap' }}>${product.price.toFixed(2)}</div>
                   <button 
                     className="btn-primary" 
-                    style={{ padding: '8px 16px', fontSize: '14px' }}
+                    style={{ padding: '8px 16px', fontSize: '14px', width: 'auto', minWidth: 'fit-content' }}
                     onClick={() => addItem({
                         id: product.id,
                         name: product.name,

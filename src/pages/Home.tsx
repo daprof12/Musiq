@@ -67,7 +67,7 @@ const Home = () => {
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <button 
               className="btn-primary" 
-              style={{ background: 'white', color: 'black' }}
+              style={{ background: 'white', color: 'black', width: 'auto', minWidth: 'fit-content' }}
               onClick={() => navigate('/subscription')}
             >
               Upgrade
