@@ -80,7 +80,7 @@ export const createCheckoutSession = async (
     currency:  'USD',
     status:    'pending',
     provider:  'netreward',
-    reference: data.id,
+    
     metadata:  {
       session_id: data.id,
       items: options.items,

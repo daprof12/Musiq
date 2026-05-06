@@ -47,9 +47,9 @@ serve(async (req) => {
       metadata = {},
     } = body;
 
-    // Call the NetReward Checkout Sessions API
-    // Using hyphenated 'checkout-sessions' which is standard for Supabase Edge Functions
-    const nrtRes = await fetch('https://api.netreward.online/v1/checkout-sessions', {
+    // Call the NetReward Checkout Sessions API Directly
+    // Bypassing the proxy (api.netreward.online) which is currently returning 405
+    const nrtRes = await fetch('https://pmpeyfkbqipfnhokfksl.supabase.co/functions/v1/checkout-sessions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,

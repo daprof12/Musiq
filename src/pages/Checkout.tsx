@@ -191,7 +191,7 @@ const Checkout = () => {
     }
   };
 
-  if (items.length === 0 && !selectedPlan) {
+  if (items.length === 0 && !selectedPlan && !sessionData) {
     return (
       <div style={{ textAlign: 'center', padding: '80px 20px' }}>
         <ShoppingBag size={64} color="#282828" style={{ marginBottom: '24px' }} />
