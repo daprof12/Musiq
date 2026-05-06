@@ -51,7 +51,7 @@ export const createCheckoutSession = async (
         type: options.type,
         nrt_user_id: options.userId,
         currency: 'USD',
-        success_url: `${window.location.origin}/checkout/success`,
+        success_url: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${window.location.origin}/checkout/cancel`,
         metadata: options.metadata ?? {},
       },
@@ -61,6 +61,11 @@ export const createCheckoutSession = async (
   if (error) {
     console.error('[PaymentService] Edge Function error:', error);
     throw new Error(error.message ?? 'Failed to create checkout session');
+  }
+
+  // Handle the pass-through error from NetReward
+  if (data && (data as any).error) {
+    throw new Error((data as any).error);
   }
 
   if (!data?.checkout_url) {

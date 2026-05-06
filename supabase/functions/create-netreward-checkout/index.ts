@@ -17,7 +17,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
@@ -27,10 +27,10 @@ serve(async (req) => {
   }
 
   try {
-    const secretKey = Deno.env.get('NRT_SECRET_KEY');
-    if (!secretKey) {
+    const apiKey = Deno.env.get('NRT_API_KEY') || Deno.env.get('VITE_NRT_API_SECRET');
+    if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: 'NRT_SECRET_KEY not configured' }),
+        JSON.stringify({ error: 'NRT_API_KEY not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
@@ -48,17 +48,16 @@ serve(async (req) => {
     } = body;
 
     // Call the NetReward Checkout Sessions API
-    const nrtRes = await fetch('https://api.netreward.online/v1/checkout/sessions', {
+    // Using hyphenated 'checkout-sessions' which is standard for Supabase Edge Functions
+    const nrtRes = await fetch('https://api.netreward.online/v1/checkout-sessions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${secretKey}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         amount: totalAmount,
         currency,
-        line_items: items,
-        mode: type === 'subscription' ? 'subscription' : 'payment',
         metadata: {
           nrt_user_id,
           item_type: type,
@@ -72,15 +71,28 @@ serve(async (req) => {
     if (!nrtRes.ok) {
       const errText = await nrtRes.text();
       console.error('[create-netreward-checkout] NRT API error:', nrtRes.status, errText);
+      
+      let errorMessage = `NetReward API error: ${nrtRes.status}`;
+      try {
+        const errJson = JSON.parse(errText);
+        errorMessage = errJson.message || errJson.error || errorMessage;
+      } catch {
+        errorMessage = errText || errorMessage;
+      }
+
       return new Response(
-        JSON.stringify({ error: `NetReward API error: ${nrtRes.status}` }),
-        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        JSON.stringify({ error: errorMessage }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
     const session = await nrtRes.json();
+    console.log('[create-netreward-checkout] NetReward response:', session);
 
-    return new Response(JSON.stringify(session), {
+    // Some versions of the API might return 'url' instead of 'checkout_url'
+    const checkoutUrl = session.checkout_url || session.url || session.payment_url;
+
+    return new Response(JSON.stringify({ ...session, checkout_url: checkoutUrl }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
