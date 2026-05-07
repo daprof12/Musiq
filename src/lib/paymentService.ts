@@ -91,6 +91,7 @@ export const createCheckoutSession = async (
   return {
     url: data.checkout_url,
     sessionId: data.id,
+    qrPayload: data.qr_payload,
   };
 };
 

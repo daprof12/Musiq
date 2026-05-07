@@ -27,9 +27,10 @@ let _tracker: NetRewardTracker | null = null;
 
 function getTracker(): NetRewardTracker {
   if (!_tracker) {
-    const apiKey    = import.meta.env.VITE_NRT_API_KEY;
-    const apiSecret = import.meta.env.VITE_NRT_API_SECRET;
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const apiKey = import.meta.env.VITE_NRT_API_KEY as string;
+    // For HMAC signing of tracking events — must match webhook_secret in sp_api_keys
+    const apiSecret = (import.meta.env.VITE_NRT_WEBHOOK_SECRET || import.meta.env.VITE_NRT_API_SECRET) as string;
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 
     if (!apiKey || !apiSecret) {
       console.warn('[NrtTracker] VITE_NRT_API_KEY or VITE_NRT_API_SECRET not set. Tracking disabled.');
