@@ -102,7 +102,7 @@ const Checkout = () => {
   const { items, total, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sessionData, setSessionData] = useState<{ url: string; sessionId: string } | null>(null);
+  const [sessionData, setSessionData] = useState<{ url: string; sessionId: string; qrPayload?: string } | null>(null);
   const { user } = useAuth();
   const { addToast } = useToastStore();
   const navigate = useNavigate();

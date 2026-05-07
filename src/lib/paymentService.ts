@@ -22,6 +22,7 @@ interface CheckoutSession {
   id: string;
   checkout_url: string;
   payment_status: 'pending';
+  qr_payload?: string;
 }
 
 // ── NetReward Checkout API ────────────────────────────────────────────────────
@@ -38,7 +39,7 @@ interface CheckoutSession {
 export const createCheckoutSession = async (
   _provider: PaymentProvider,
   options: CheckoutOptions,
-): Promise<{ url: string; sessionId: string }> => {
+): Promise<{ url: string; sessionId: string; qrPayload?: string }> => {
 
   // 1. Call the Supabase Edge Function to create the NetReward session
   //    (keeps the Secret Key server-side only)
