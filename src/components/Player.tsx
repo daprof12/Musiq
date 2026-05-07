@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Volume2, Mic2, ListMusic, MonitorSpeaker } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useAuth } from '../context/AuthContext';
-import { trackPlayStart, trackPlayEnd, getDeviceId, MUSIQ_CAMPAIGN_ID } from '../lib/nrtTracker';
 
 const Player = () => {
   const { currentTrack, isPlaying, togglePlay, volume, setVolume } = usePlayerStore();
@@ -11,35 +10,14 @@ const Player = () => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  // ── NRT Tracking ─────────────────────────────────────────────────────────────
-  // Track elapsed seconds since the current playback session started
-  const playStartTimeRef = useRef<number | null>(null);
-
-  /** Called whenever we begin streaming — opens an NRT session */
-  const startTracking = () => {
-    if (!user) return; // only track authenticated users
-    playStartTimeRef.current = Date.now();
-    trackPlayStart(user.id, getDeviceId(), MUSIQ_CAMPAIGN_ID);
-  };
-
-  /** Called whenever playback pauses/stops/changes — closes the NRT session */
-  const endTracking = () => {
-    if (playStartTimeRef.current === null) return;
-    const elapsedSecs = (Date.now() - playStartTimeRef.current) / 1000;
-    playStartTimeRef.current = null;
-    trackPlayEnd(elapsedSecs);
-  };
-
   // ── Playback control ──────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.play().catch(err => console.error('Playback error:', err));
-        startTracking();
       } else {
         audioRef.current.pause();
-        endTracking();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,9 +25,7 @@ const Player = () => {
 
   // End tracking when track changes (before the new one starts)
   useEffect(() => {
-    return () => {
-      endTracking();
-    };
+    return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTrack?.id]);
 
@@ -73,10 +49,7 @@ const Player = () => {
     }
   };
 
-  /** When the audio element fires 'ended', close the NRT session for the full track */
-  const handleEnded = () => {
-    endTracking();
-  };
+  const handleEnded = () => {};
 
   const formatTime = (time: number) => {
     if (isNaN(time)) return '0:00';
