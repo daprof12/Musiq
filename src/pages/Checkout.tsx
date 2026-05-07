@@ -16,44 +16,69 @@ const isMobileDevice = () =>
 // ── QR Code (pure SVG/CSS — no external dependency) ──────────────────────────
 // We render a link-styled QR placeholder that opens the URL on click.
 // In production, swap for a real <QRCode> library like 'qrcode.react'.
-const QRCodeDisplay = ({ url, sessionId, qrPayload }: { url: string; sessionId: string; qrPayload?: string }) => {
-  // Use the structured JSON payload from the NetReward backend (same format as Scan2Pay).
-  // Fallback to the plain checkout URL if the payload is not provided.
-  const qrData = qrPayload ?? url;
-  const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=${encodeURIComponent(qrData)}`;
-
-  return (
-    <div style={{ textAlign: 'center' }}>
+const QRCodeDisplay = ({ url, sessionId, qrPayload }: { url: string; sessionId: string; qrPayload?: string }) => (
+  <div style={{ textAlign: 'center' }}>
+    {/* QR frame */}
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      title="Scan or click to pay"
+      style={{ display: 'inline-block' }}
+    >
       <div style={{
-        display: 'inline-block',
+        width: '160px',
+        height: '160px',
         background: 'white',
-        borderRadius: '16px',
+        borderRadius: '12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '8px',
         padding: '12px',
-        boxShadow: '0 0 0 4px rgba(30,215,96,0.3)',
-        transition: 'box-shadow 0.2s',
         cursor: 'pointer',
         margin: '0 auto',
+        boxShadow: '0 0 0 4px rgba(30,215,96,0.3)',
+        transition: 'box-shadow 0.2s',
       }}
         onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 0 0 6px rgba(30,215,96,0.5)')}
         onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 0 0 4px rgba(30,215,96,0.3)')}
-        onClick={() => window.open(url, '_blank')}
-        title="Click to open payment page"
       >
-        <img
-          src={qrImgSrc}
-          alt="Scan to pay with NetReward"
-          style={{ width: '160px', height: '160px', borderRadius: '8px', display: 'block' }}
-        />
+        {/* Simulated QR grid — replace with <QRCode value={url} size={136} /> */}
+        <svg width="136" height="136" viewBox="0 0 136 136" fill="none">
+          {/* Corner squares */}
+          <rect x="4"   y="4"   width="36" height="36" rx="4" fill="#111" />
+          <rect x="10"  y="10"  width="24" height="24" rx="2" fill="white" />
+          <rect x="16"  y="16"  width="12" height="12" rx="1" fill="#111" />
+          <rect x="96"  y="4"   width="36" height="36" rx="4" fill="#111" />
+          <rect x="102" y="10"  width="24" height="24" rx="2" fill="white" />
+          <rect x="108" y="16"  width="12" height="12" rx="1" fill="#111" />
+          <rect x="4"   y="96"  width="36" height="36" rx="4" fill="#111" />
+          <rect x="10"  y="102" width="24" height="24" rx="2" fill="white" />
+          <rect x="16"  y="108" width="12" height="12" rx="1" fill="#111" />
+          {/* Data dots (decorative) */}
+          {[48,56,64,72,80,88].map((x) =>
+            [48,56,64,72,80,88].map((y) =>
+              (x + y) % 16 === 0 ? (
+                <rect key={`${x}-${y}`} x={x} y={y} width="6" height="6" rx="1" fill="#111" />
+              ) : null
+            )
+          )}
+          {/* Center NRT logo mark */}
+          <rect x="56" y="56" width="24" height="24" rx="4" fill="#1ed760" />
+          <text x="68" y="73" textAnchor="middle" fill="black" fontSize="12" fontWeight="bold">N</text>
+        </svg>
       </div>
-      <p style={{ marginTop: '12px', fontSize: '12px', color: '#a7a7a7' }}>
-        Scan with your NetReward app
-      </p>
-      <p style={{ fontSize: '11px', color: '#555', marginTop: '4px', fontFamily: 'monospace' }}>
-        {sessionId.slice(0, 16)}…
-      </p>
-    </div>
-  );
-};
+    </a>
+    <p style={{ marginTop: '12px', fontSize: '12px', color: '#a7a7a7' }}>
+      Scan with your NetReward app
+    </p>
+    <p style={{ fontSize: '11px', color: '#555', marginTop: '4px', fontFamily: 'monospace' }}>
+      {sessionId.slice(0, 16)}…
+    </p>
+  </div>
+);
 
 // ── Mobile deep-link button ──────────────────────────────────────────────────
 const MobilePayButton = ({ url }: { url: string }) => (
@@ -102,7 +127,7 @@ const Checkout = () => {
   const { items, total, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sessionData, setSessionData] = useState<{ url: string; sessionId: string; qrPayload?: string } | null>(null);
+  const [sessionData, setSessionData] = useState<{ url: string; sessionId: string } | null>(null);
   const { user } = useAuth();
   const { addToast } = useToastStore();
   const navigate = useNavigate();

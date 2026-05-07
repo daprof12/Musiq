@@ -99,10 +99,8 @@ const Player = () => {
         <div style={{
           width: '56px',
           height: '56px',
-          backgroundImage: currentTrack?.cover_url ? `url(${currentTrack.cover_url})` : 'none',
-          backgroundColor: '#282828',
+          background: currentTrack ? `url(${currentTrack.cover_url})` : '#282828',
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
           borderRadius: '4px',
           flexShrink: 0
         }}></div>

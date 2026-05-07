@@ -27,9 +27,9 @@ let _tracker: NetRewardTracker | null = null;
 
 function getTracker(): NetRewardTracker {
   if (!_tracker) {
-    const apiKey = import.meta.env.VITE_NRT_API_KEY as string;
-    // For HMAC signing of tracking events — must match webhook_secret in sp_api_keys
-    const apiSecret = (import.meta.env.VITE_NRT_WEBHOOK_SECRET || import.meta.env.VITE_NRT_API_SECRET) as string;
+    const apiKey    = import.meta.env.VITE_NRT_API_KEY;
+    const apiSecret = import.meta.env.VITE_NRT_API_SECRET;
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 
     if (!apiKey || !apiSecret) {
       console.warn('[NrtTracker] VITE_NRT_API_KEY or VITE_NRT_API_SECRET not set. Tracking disabled.');
@@ -37,13 +37,11 @@ function getTracker(): NetRewardTracker {
       return createNoopTracker();
     }
 
-    const netrewardUrl = 'https://pmpeyfkbqipfnhokfksl.supabase.co';
-
     _tracker = new NetRewardTracker({
       apiKey,
       apiSecret,
-      // Tracking endpoint is the NetReward project, not the local Musiq project
-      endpoint: `${netrewardUrl}/functions/v1/tracking`,
+      // Tracking endpoint is our own Supabase Edge Function, not api.netreward.online
+      endpoint: `${supabaseUrl}/functions/v1/tracking`,
       flushIntervalMs: 60_000,  // flush every 60 s
       maxBatchSize: 50,
     });
