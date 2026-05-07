@@ -23,6 +23,9 @@ interface CheckoutSession {
   checkout_url: string;
   payment_status: 'pending';
   qr_payload?: string;
+  expires_at?: string;
+  merchant_name?: string;
+  amount_nrt?: number;
 }
 
 // ── NetReward Checkout API ────────────────────────────────────────────────────
@@ -39,7 +42,7 @@ interface CheckoutSession {
 export const createCheckoutSession = async (
   _provider: PaymentProvider,
   options: CheckoutOptions,
-): Promise<{ url: string; sessionId: string; qrPayload?: string }> => {
+): Promise<{ url: string; sessionId: string; qrPayload?: string; expiresAt?: string; merchantName?: string }> => {
 
   // 1. Call the Supabase Edge Function to create the NetReward session
   //    (keeps the Secret Key server-side only)
@@ -92,7 +95,9 @@ export const createCheckoutSession = async (
   return {
     url: data.checkout_url,
     sessionId: data.id,
-    qrPayload: data.qr_payload,
+    qrPayload: (data as any).qr_payload,
+    expiresAt: (data as any).expires_at,
+    merchantName: (data as any).merchant_name,
   };
 };
 
@@ -102,8 +107,8 @@ export const verifyPayment = async (sessionId: string) => {
   const { data } = await supabase
     .from('transactions')
     .select('*')
-    .eq('reference', sessionId)
-    .single();
+    .contains('metadata', { session_id: sessionId })
+    .maybeSingle();
 
   return { success: !!data && data.status === 'completed', data };
 };
