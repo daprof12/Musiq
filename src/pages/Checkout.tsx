@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useCartStore } from '../store/useCartStore';
 import {
-  CreditCard, ShoppingBag, ShieldCheck, Star, Crown, Zap, Smartphone, Monitor, ChevronLeft,
+  CreditCard, ShoppingBag, ShieldCheck, Star, Crown, Smartphone, Monitor, ChevronLeft,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';

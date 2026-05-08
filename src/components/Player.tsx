@@ -1,11 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Volume2, Mic2, ListMusic, MonitorSpeaker } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
-import { useAuth } from '../context/AuthContext';
-
 const Player = () => {
   const { currentTrack, isPlaying, togglePlay, volume, setVolume } = usePlayerStore();
-  const { user } = useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
