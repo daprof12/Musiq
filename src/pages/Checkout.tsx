@@ -76,7 +76,7 @@ const Checkout = () => {
         <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>Checkout</h1>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '24px', alignItems: 'start' }}>
+      <div className="checkout-grid">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <section className="glass" style={{ padding: '20px', borderRadius: '12px' }}>
             <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
