@@ -26,7 +26,7 @@ const Checkout = () => {
 
     // Inject the NetReward Pay button dynamically
     const script = document.createElement('script');
-    script.src = '/pay.js';
+    script.src = 'https://cdn.netreward.online/pay.js';
     script.setAttribute('data-api-key', import.meta.env.VITE_NRT_API_KEY);
     script.setAttribute('data-amount', finalTotal.toString());
     script.setAttribute('data-order-id', `MUSIQ_${Date.now()}`);
