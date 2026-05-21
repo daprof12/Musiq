@@ -7,7 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>musiq</title>
   <!-- NetReward Tracker (Zero-Code) -->
-  <script src="http://localhost:5173/tracker.js?v=2" data-api-key="nr_live_10f0ddafef9e44a1954e048d" defer></script>
+  <script>
+    // Clean up stale test device IDs so the tracker uses its own fingerprint
+    localStorage.removeItem('nrt_device_id');
+  </script>
+  <script src="https://cdn.netreward.online/tracker.js" data-api-key="nr_live_10f0ddafef9e44a1954e048d" defer></script>
 </head>
 
 <body>
