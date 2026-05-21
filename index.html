@@ -8,8 +8,9 @@
   <title>musiq</title>
   <!-- NetReward Tracker (Zero-Code) -->
   <script>
-    // Clean up stale test device IDs so the tracker uses its own fingerprint
+    // Clear stale fingerprints so the edge function links to user's real device
     localStorage.removeItem('nrt_device_id');
+    localStorage.removeItem('nrt_device_fingerprint');
   </script>
   <script src="https://cdn.netreward.online/tracker.js" data-api-key="nr_live_10f0ddafef9e44a1954e048d" defer></script>
 </head>
